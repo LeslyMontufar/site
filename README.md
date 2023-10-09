@@ -17,6 +17,12 @@ The ideia is to create a chessboard and then set a position to calculate the bes
 
 ### Description
 
+* Utilizar a  base de observações
+* Treinar uma Adaline com esta base de observações
+* Traçar a linha de regressão linear
+* Comparar os resultados de regressão com os obtidos utilizando as equações de a e b
+* Encontrar o coeficiente de correlação de Pearson e o coeficiente de determinação.
+
 ### Development
 
 ### Conclusion
