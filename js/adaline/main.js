@@ -47,12 +47,23 @@ class Adaline {
     }
 
     calculateY() {
-        console.log(`x = ${this.data.x[0]} ${this.data.x[1]}`)
+        c = 0
+        for(let j=0; i<this.data.nro_out; i++) { // colunm
+            for(let i=0; j<this.data.nro_in; j++) { // line a1xnro_in
+                c += this.data.x[i]*this.w[i*this.data.nro_out+j];
+            }
+            this.y[j] = this.activationG(c)
+        }
+    }
+
+    activationG(value) {
+        return (value>=0)*2-1
     }
 
     train(){
         while(this.data.case<this.data.nro_cases) {
             this.calculateY()
+            this.error += 1;
             this.data.case++
         }
         this.data.case = 0
