@@ -16,23 +16,27 @@ class DataSet {
     get x() {
         return this.data.slice(this.case*this.nro_in, this.case*this.nro_in+this.nro_in);
     }
+
+    get t() {
+        return this.target.slice(this.case*this.nro_out, this.case*this.nro_out+this.nro_out);
+    }
 }
 
 class Adaline {
-    constructor({data, epochs=1000, alpha = 0.001, theta = 0}) {
+    constructor({data, epochs=1000, alpha = 0.01, theta = 0}) {
         this.alpha = alpha;
         this.theta = theta;
         this.data = data;
         this.epochs = epochs;
         
-        this.tolerance = 1e-10;
+        this.tolerance = 1e-6;
         this.dw = 0;
         this.Biggerdw = 0;
         this.error = 0;
         this.globalError = 0;
 
-        this.w = this.zeros(this.data.nro_in*this.data.nro_out);
-        this.b = this.zeros(this.data.nro_out);
+        this.w = this.randomUniform(this.data.nro_in*this.data.nro_out);
+        this.b = this.randomUniform(this.data.nro_out);
         this.y = [];
 
         this.globalY = [];
@@ -42,7 +46,7 @@ class Adaline {
     zeros(n) {
         const randomList = [];
         for (let i = 0; i < n; i++) {
-            randomList.push(0.2);
+            randomList.push(0);
         }
         return randomList;
     }
@@ -51,7 +55,7 @@ class Adaline {
         const randomList = [];
 
         for (let i = 0; i < n; i++) {
-            const nro = Math.random()-0.5; // Gera um número entre 0 (inclusive) e 1 (exclusive)
+            const nro = Math.random()/2//-0.5; // Gera um número entre 0 (inclusive) e 1 (exclusive)
             randomList.push(nro);
         }
         return randomList;
@@ -75,7 +79,7 @@ class Adaline {
         this.error = 0;
         let errYTarget;
         for(let j=0; j<this.data.nro_out; j++) {
-            errYTarget = this.data.target[j]-this.y[j];
+            errYTarget = this.data.t[j]-this.y[j];
             for(let i=0; i<this.data.nro_in; i++) {
                 this.dw = this.alpha*this.data.x[i]*errYTarget; // +a ou - 0, no caso de entrada e saida inteira
                 this.w[i*this.data.nro_out+j] += this.dw;
@@ -87,7 +91,7 @@ class Adaline {
             if(this.dw>this.Biggerdw) {
                 this.Biggerdw = this.dw;
             }
-            console.log(errYTarget)
+            
             if (errYTarget == 0){
                 this.winRate++;
             }
@@ -104,11 +108,13 @@ class Adaline {
             this.updateWeights(); // calculando o erro global
             this.globalError += this.error;
             this.globalY = this.globalY.concat(this.y);
+            console.log(this.data.t)
             this.data.case++;
         }
         this.globalError /= this.data.nro_cases;
         this.data.case = 0;
         this.winRate = this.winRate /(this.data.nro_cases*this.data.nro_out)*100;
+        
         return (this.winRate < userWinRate) && (this.Biggerdw > this.tolerance);
     }
 }
@@ -121,18 +127,29 @@ function log(message) {
     logContainer.appendChild(logMessage);
 }
 
-const data = new DataSet({data: [-1, -1,
-                                -1, 1,
-                                1, -1,
-                                1, 1],
-                        nro_in: 2,
-                        target: [-1, -1,
-                                1, 1,
-                                1, 1,
-                                1, 1],
-                        nro_out: 2});
+// const data = new DataSet({data: [-1, -1,
+//                                 -1, 1,
+//                                 1, -1,
+//                                 1, 1],
+//                         nro_in: 2,
+//                         target: [-1, -1,
+//                                 1, -1,
+//                                 1, -1,
+//                                 1, 1],
+//                         nro_out: 2});
 
-let adaline = new Adaline({data, epochs:1});
+const data = new DataSet({data: [-1, -1,
+    -1, 1,
+    1, -1,
+    1, 1],
+nro_in: 2,
+target: [-1,
+    1,
+    1,
+    1],
+nro_out: 1});
+
+let adaline = new Adaline({data, epochs:10});
 
 let epoch = 1;
 let continueCondition = true;
