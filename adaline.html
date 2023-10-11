@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lan="pt-br">
+<html lang="pt-br">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,7 +11,15 @@
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
         <!-- code -->
+        <link rel="stylesheet" type="text/css" href="css/adaline.css">
         
+        <!-- latex -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+          </script>
+          <script type="text/javascript"
+            src="http://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+          </script>
 
     </head>
     <body>
@@ -38,6 +46,8 @@
         </div>
 
         <!-- code -->
+        <div id="logContainer"></div>
+
         <script src="js/adaline/main.js"></script>
         
         <!-- js navbar -->
