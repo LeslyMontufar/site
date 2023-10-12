@@ -8,23 +8,25 @@ function log(message) {
     logContainer.appendChild(logMessage);
 }
 
-function drawChart(label1, dots1, label2, dots2) {
+function drawChart(label1, dots1, label2, dots2, maxX) {
     let ctx = canvasError.getContext('2d');
-    // Defina os dados do gráfico de dispersão (exemplo)
+    // Defina os dados do gráfico de dispersão
     let datas = {
       datasets: [
         {
           label: label1,
           data: dots1,
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          pointRadius: 6,
+          borderColor: 'rgba(75, 192, 192, 0.5)',
+          fill: false,
+          pointRadius: 2,
           yAxisID: 'esquerda'
         },
         {
           label: label2,
           data: dots2,
-          backgroundColor: 'rgba(255, 99, 132, 0.5)', // Cor do grupo 2
-          pointRadius: 6,
+          borderColor: 'rgba(255, 99, 132, 0.5)', 
+          fill: false,
+          pointRadius: 2,
           yAxisID: 'direita'
         }
       ]
@@ -32,10 +34,16 @@ function drawChart(label1, dots1, label2, dots2) {
   
     // Configure e crie o gráfico de dispersão
     let chart = new Chart(ctx, {
-      type: 'scatter',
+      type: 'line',
       data: datas,
       options: {
         scales: {
+            x: {
+                type: 'linear', //'logarithmic',
+                position: 'bottom',
+                min: 1,
+                max: maxX,
+            },
             esquerda: {
                 type: 'linear',
                 position: 'left',

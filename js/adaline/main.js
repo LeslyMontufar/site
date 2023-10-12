@@ -23,13 +23,13 @@ class DataSet {
 }
 
 class Adaline {
-    constructor({data, epochs=1000, alpha = 0.001, userWinRate = 100}) {
+    constructor({data, epochs=1000, alpha = 0.001, userWinRate = 100, tolerance = 1e-6}) {
         this.alpha = alpha;
         this.data = data;
         this.epochs = epochs;
         this.userWinRate = userWinRate;
         
-        this.tolerance = 1e-6;
+        this.tolerance = tolerance;
         this.dw = 0;
         this.db = 0;
 
@@ -156,12 +156,12 @@ class Adaline {
 
 // inicio
 
-function adalineTrain(epochs=1000, alpha=0.01, userWinRate=90){
+function adalineTrain(epochs=1000, alpha=0.01, userWinRate=90, tolerance=1e-6){
 
 const data = new DataSet({data: x, nro_in: nro_x,
                           target: y, nro_out: nro_y});
 
-let adaline = new Adaline({data, epochs, alpha, userWinRate});
+let adaline = new Adaline({data, epochs, alpha, userWinRate, tolerance});
 let epoch = 1;
 let continueCondition = true;
 let dots = [];
@@ -179,14 +179,13 @@ while ((epoch <= adaline.epochs) && continueCondition) {
     dots.push({x:epoch, y:adaline.globalError})
     dots2.push({x:epoch, y:adaline.winRate})
     epoch++;
-    console.log(adaline)
 }
 
 log(`epochs duration: ${epoch-1}`)
 log(`final error: ${adaline.globalError}`)
 log(`final win rate: ${adaline.winRate}`)
 
-drawChart('Erro quadrático médio', dots, 'Taxa de acerto', dots2);
+drawChart('Erro quadrático médio', dots, 'Taxa de acerto', dots2, epoch-1);
 
 let dots3 = [], dots4 = [], result, maior = 0, menor = 100;
 for(let i in data.target) {
@@ -205,7 +204,11 @@ log(`min diff: ${menor}`)
 log(`max diff: ${maior}`)
 
 function mean(v){
-    return sum(v)/v.length;
+    let soma = 0;
+    for(let i in v){
+        soma += v[i];
+    }
+    return soma/v.length;
 }
 
 function calculateAR(x,y){
