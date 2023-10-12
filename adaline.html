@@ -16,10 +16,13 @@
         <!-- latex -->
         <script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-          </script>
-          <script type="text/javascript"
-            src="http://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-          </script>
+        </script>
+        <script type="text/javascript"
+        src="http://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+        </script>
+
+        <!-- chart -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     </head>
     <body>
@@ -47,6 +50,8 @@
 
         <!-- code -->
         <div id="logContainer"></div>
+
+        <canvas id="errorChart"></canvas>
 
         <script src="js/adaline/main.js"></script>
         

@@ -23,13 +23,12 @@ class DataSet {
 }
 
 class Adaline {
-    constructor({data, epochs=1000, alpha = 0.01, theta = 0}) {
+    constructor({data, epochs=1000, alpha = 0.01}) {
         this.alpha = alpha;
-        this.theta = theta;
         this.data = data;
         this.epochs = epochs;
         
-        this.tolerance = 1e-6;
+        this.tolerance = 1e-4;
         this.dw = 0;
         this.Biggerdw = 0;
         this.error = 0;
@@ -37,6 +36,7 @@ class Adaline {
 
         this.w = this.randomUniform(this.data.nro_in*this.data.nro_out);
         this.b = this.randomUniform(this.data.nro_out);
+        this.u = [];
         this.y = [];
 
         this.globalY = [];
@@ -46,40 +46,39 @@ class Adaline {
     zeros(n) {
         const randomList = [];
         for (let i = 0; i < n; i++) {
-            randomList.push(0);
+            randomList.push(-0.4);
         }
         return randomList;
     }
 
     randomUniform(n) {
         const randomList = [];
-
         for (let i = 0; i < n; i++) {
-            const nro = Math.random()/2//-0.5; // Gera um número entre 0 (inclusive) e 1 (exclusive)
+            const nro = Math.random()-0.5; // [-0.5,0.5)
             randomList.push(nro);
         }
         return randomList;
     }
 
-    calculateY() {
-        let c = 0;
+    calculateU() {
         for(let j=0; j<this.data.nro_out; j++) { // colunm
+            let c = this.b[j];
             for(let i=0; i<this.data.nro_in; i++) { // line a1xnro_in
                 c += this.data.x[i]*this.w[i*this.data.nro_out+j];
             }
-            this.y[j] = this.activationG(c);
+            this.u[j] = c; 
         }
     }
 
     activationG(value) {
-        return ((value>=this.theta)*2-1)
+        return ((value>=0)*2-1)
     }
 
     updateWeights() {
         this.error = 0;
         let errYTarget;
         for(let j=0; j<this.data.nro_out; j++) {
-            errYTarget = this.data.t[j]-this.y[j];
+            errYTarget = this.data.t[j]-this.u[j];
             for(let i=0; i<this.data.nro_in; i++) {
                 this.dw = this.alpha*this.data.x[i]*errYTarget; // +a ou - 0, no caso de entrada e saida inteira
                 this.w[i*this.data.nro_out+j] += this.dw;
@@ -91,12 +90,28 @@ class Adaline {
             if(this.dw>this.Biggerdw) {
                 this.Biggerdw = this.dw;
             }
-            
-            if (errYTarget == 0){
-                this.winRate++;
-            }
         }
         this.error /= (2*this.data.nro_out)
+    }
+
+    validate() {
+        while(this.data.case<this.data.nro_cases){
+            for(let j=0; j<this.data.nro_out; j++) { // colunm
+                let c = this.b[j];
+                for(let i=0; i<this.data.nro_in; i++) { // line a1xnro_in
+                    c += this.data.x[i]*this.w[i*this.data.nro_out+j];
+                }
+                this.u[j] = c; 
+                this.y[j] = this.activationG(c);
+                if(this.data.t[j]==this.y[j]){
+                    this.winRate++;
+                }
+            }
+            this.globalY = this.globalY.concat(this.y);
+            this.data.case++;
+        }
+        this.data.case = 0;
+        this.winRate = this.winRate /(this.data.nro_cases*this.data.nro_out)*100;
     }
 
     train(userWinRate = 100){
@@ -104,16 +119,14 @@ class Adaline {
         this.globalY = [];
         this.globalError = 0;
         while(this.data.case<this.data.nro_cases) {
-            this.calculateY();
-            this.updateWeights(); // calculando o erro global
+            this.calculateU();
+            this.updateWeights(); 
             this.globalError += this.error;
-            this.globalY = this.globalY.concat(this.y);
-            console.log(this.data.t)
             this.data.case++;
         }
-        this.globalError /= this.data.nro_cases;
         this.data.case = 0;
-        this.winRate = this.winRate /(this.data.nro_cases*this.data.nro_out)*100;
+        this.validate();
+        this.globalError /= this.data.nro_cases;
         
         return (this.winRate < userWinRate) && (this.Biggerdw > this.tolerance);
     }
@@ -126,6 +139,46 @@ function log(message) {
     logMessage.innerHTML = message;
     logContainer.appendChild(logMessage);
 }
+
+// function errorChart() {
+    let ctx = document.getElementById('errorChart').getContext('2d');
+
+    // Defina os dados do gráfico de dispersão (exemplo)
+    let datas = {
+      datasets: [
+        {
+          label: 'Erro quadrático médio',
+          data: [
+            { x: 10, y: 20 },
+            { x: 15, y: 25 },
+            { x: 30, y: 40 },
+            { x: 45, y: 50 },
+            // Adicione mais pontos de dados aqui
+          ],
+          backgroundColor: 'rgba(75, 192, 192, 0.5)',
+          pointRadius: 6
+        }
+      ]
+    };
+  
+    // Configure e crie o gráfico de dispersão
+    let myScatterChart = new Chart(ctx, {
+      type: 'scatter',
+      data: datas,
+      options: {
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom'
+          },
+          y: {
+            type: 'linear',
+            position: 'left'
+          }
+        }
+      }
+    });
+// }
 
 // const data = new DataSet({data: [-1, -1,
 //                                 -1, 1,
@@ -155,12 +208,12 @@ let epoch = 1;
 let continueCondition = true;
 
 while ((epoch <= adaline.epochs) && continueCondition) {
-    continueCondition = adaline.train(90);
+    continueCondition = adaline.train();
     log(`Epoch: ${epoch}<br>global error: ${adaline.globalError}<br>`)  
-    log(`w: ${adaline.w}<br>b: ${adaline.b}<br>`)
-    log(`y: ${adaline.globalY}<br>target: ${adaline.data.target}<br>`)
-    log(`winRate: ${adaline.winRate}%<br>`);
-    log(`continue: ${continueCondition}<br><br>`);
+    // log(`w: ${adaline.w}<br>b: ${adaline.b}<br>`)
+    // log(`y: ${adaline.globalY}<br>target: ${adaline.data.target}<br>`)
+    log(`winRate: ${adaline.winRate}%<br><br>`);
+    // log(`continue: ${continueCondition}<br><br>`);
     epoch++;
 }
 
