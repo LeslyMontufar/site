@@ -140,7 +140,7 @@ function log(message) {
     logContainer.appendChild(logMessage);
 }
 
-// function errorChart() {
+function drawChart(dots, dots2) {
     let ctx = document.getElementById('errorChart').getContext('2d');
 
     // Defina os dados do gráfico de dispersão (exemplo)
@@ -148,15 +148,17 @@ function log(message) {
       datasets: [
         {
           label: 'Erro quadrático médio',
-          data: [
-            { x: 10, y: 20 },
-            { x: 15, y: 25 },
-            { x: 30, y: 40 },
-            { x: 45, y: 50 },
-            // Adicione mais pontos de dados aqui
-          ],
+          data: dots,
           backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          pointRadius: 6
+          pointRadius: 6,
+          yAxisID: 'esquerda'
+        },
+        {
+          label: 'Taxa de acerto',
+          data: dots2,
+          backgroundColor: 'rgba(255, 99, 132, 0.5)', // Cor do grupo 2
+          pointRadius: 6,
+          yAxisID: 'direita'
         }
       ]
     };
@@ -167,18 +169,20 @@ function log(message) {
       data: datas,
       options: {
         scales: {
-          x: {
-            type: 'linear',
-            position: 'bottom'
-          },
-          y: {
-            type: 'linear',
-            position: 'left'
-          }
+            esquerda: {
+                type: 'linear',
+                position: 'left',
+                beginAtZero: true,
+            },
+            direita: {
+                type: 'linear',
+                position: 'right',
+                beginAtZero: true,
+            }
         }
       }
     });
-// }
+}
 
 // const data = new DataSet({data: [-1, -1,
 //                                 -1, 1,
@@ -202,20 +206,28 @@ target: [-1,
     1],
 nro_out: 1});
 
-let adaline = new Adaline({data, epochs:10});
-
+let adaline = new Adaline({data, epochs:100});
 let epoch = 1;
 let continueCondition = true;
+let dots = [];
+let dots2 = [];
 
 while ((epoch <= adaline.epochs) && continueCondition) {
     continueCondition = adaline.train();
-    log(`Epoch: ${epoch}<br>global error: ${adaline.globalError}<br>`)  
+    // log(`Epoch: ${epoch} global error: ${adaline.globalError}<br>`)  
     // log(`w: ${adaline.w}<br>b: ${adaline.b}<br>`)
     // log(`y: ${adaline.globalY}<br>target: ${adaline.data.target}<br>`)
-    log(`winRate: ${adaline.winRate}%<br><br>`);
+    // log(`winRate: ${adaline.winRate}%<br><br>`);
     // log(`continue: ${continueCondition}<br><br>`);
+    dots.push({x:epoch, y:adaline.globalError})
+    dots2.push({x:epoch, y:adaline.winRate})
     epoch++;
 }
+
+log(`epochs duration: ${epoch}`)
+log(`final error: ${adaline.globalError}`)
+
+drawChart(dots, dots2);
 
 // message = `\\[
 //     \\begin{bmatrix}
