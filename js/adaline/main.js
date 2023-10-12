@@ -136,102 +136,13 @@ class Adaline {
 }
 
 // inicio
-function log(message) {
-    const logContainer = document.getElementById('logContainer');
-    const logMessage = document.createElement('p');
-    logMessage.innerHTML = message;
-    logContainer.appendChild(logMessage);
-}
 
-function drawChart(element,label1, dots1, label2, dots2) {
-    let ctx = document.getElementById(element).getContext('2d');
-
-    // Defina os dados do gráfico de dispersão (exemplo)
-    let datas = {
-      datasets: [
-        {
-          label: label1,
-          data: dots1,
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          pointRadius: 6,
-          yAxisID: 'esquerda'
-        },
-        {
-          label: label2,
-          data: dots2,
-          backgroundColor: 'rgba(255, 99, 132, 0.5)', // Cor do grupo 2
-          pointRadius: 6,
-          yAxisID: 'direita'
-        }
-      ]
-    };
-  
-    // Configure e crie o gráfico de dispersão
-    let myScatterChart = new Chart(ctx, {
-      type: 'scatter',
-      data: datas,
-      options: {
-        scales: {
-            esquerda: {
-                type: 'linear',
-                position: 'left',
-                beginAtZero: true,
-            },
-            direita: {
-                type: 'linear',
-                position: 'right',
-                beginAtZero: true,
-            }
-        }
-      }
-    });
-}
-
-function drawLinearRegression(element,label1, dots1, label2, dots2) {
-    // Selecione o elemento canvas
-    var ctx = document.getElementById(element).getContext('2d');
-
-    // Dados do gráfico de dispersão (amostras)
-    var data = {
-        datasets: [
-          {
-            label: label1,
-            data: dots1,
-            borderColor: 'rgba(75, 192, 192, 0.5)',
-            backgroundColor: 'rgba(75, 192, 192, 0.5)',
-            pointRadius: 6,
-            type: 'scatter', // Tipo de gráfico de dispersão
-          },
-          {
-            label: label2,
-            data: dots2,
-            borderColor: 'red', // Cor da linha
-            borderWidth: 2, // Largura da linha
-            fill: false, // Não preencha a área sob a linha
-            type: 'line', // Tipo de gráfico de linha
-          }
-        ]
-      };
-      
-      // Configurações do gráfico
-      var options = {
-        // responsive: true,
-        // maintainAspectRatio: false,
-      };
-      
-      // Crie o gráfico combinado de dispersão e linha
-      var myCombinedChart = new Chart(ctx, {
-        type: 'scatter',
-        data: data,
-        options: options
-      });
-
-}
+function adaline(epochs=1000, alpha=0.01, userWinRate=90){
 
 const data = new DataSet({data: x, nro_in: nro_x,
                           target: y, nro_out: nro_y});
 
-let adaline = new Adaline({data, epochs:1000, alpha: 0.01, userWinRate:90});
+let adaline = new Adaline({data, epochs, alpha, userWinRate});
 let epoch = 1;
 let continueCondition = true;
 let dots = [];
@@ -253,19 +164,9 @@ log(`epochs duration: ${epoch-1}`)
 log(`final error: ${adaline.globalError}`)
 log(`final win rate: ${adaline.winRate}`)
 
-drawChart('errorChart','Erro quadrático médio', dots, 'Taxa de acerto', dots2);
+drawChart('Erro quadrático médio', dots, 'Taxa de acerto', dots2);
 
 let dots3 = [], dots4 = [], result, maior = 0, menor = 100;
-// while(adaline.data.case<adaline.data.nro_cases) {
-//     dots3.push({x:data.x, y:data.t});
-//     result = parseFloat(adaline.w[0]*data.x[0]+adaline.b[0]);
-//     erro = (data.t-result);
-
-//     dots4.push({x:data.x, y:result});
-//     adaline.data.case ++;
-// }
-// adaline.data.case = 0;
-
 for(let i in data.target) {
     dots3.push({x:data.data[i],y:data.target[i]});
     dots4.push({x:data.data[i],y:adaline.globalY[i]});
@@ -281,7 +182,7 @@ for(let i in data.target) {
 log(`min diff: ${menor}`)
 log(`max diff: ${maior}`)
 
-drawLinearRegression('linearRegression','Amostras', dots3, 'Regressao Linear', dots4);
+drawLinearRegression('Amostras', dots3, 'Regressao Linear', dots4);
 
 message = `\\[
     \\begin{bmatrix}
@@ -359,5 +260,7 @@ eq += `t_{1${data.nro_in}}
 
 eq += `\\]`
 
-log(message);
+// log(message);
 log(eq);
+
+}

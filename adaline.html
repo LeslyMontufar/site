@@ -10,10 +10,6 @@
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css">
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
-        <!-- code -->
-        <link rel="stylesheet" type="text/css" href="css/adaline.css">
-        <script src="js/adaline/baseDados.js"></script>
-        
         <!-- latex -->
         <script type="text/x-mathjax-config">
             MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
@@ -24,6 +20,10 @@
 
         <!-- chart -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <!-- code -->
+        <link rel="stylesheet" type="text/css" href="css/adaline.css">
+        <script src="js/adaline/baseDados.js"></script>
 
     </head>
     <body>
@@ -50,6 +50,19 @@
         </div>
 
         <!-- code -->
+        <form id="form">
+            <label for="epochs">epochs:</label>
+            <input type="text" id="epochs" name="epochs" placeholder="1000">
+
+            <label for="alpha">alpha:</label>
+            <input type="text" id="alpha" name="alpha" placeholder="0.01">
+            
+            <label for="winRate">winRate:</label>
+            <input type="text" id="winRate" name="winRate" placeholder="90">
+
+            <button type="submit">Calcular</button>
+        </form>
+
         <div class="container">
             <div class="log">
                 <div id="logContainer"></div>
@@ -64,10 +77,50 @@
         </div>
         
         <!-- js adaline -->
+        <script src="js/adaline/ids.js"></script>
+        <!-- <script>
+            function oi(n1,n2){
+                log(`$x^2 + ${n1}^{${n2}}$`)
+            }
+            oi(33, 44)
+        </script> -->
+
         <script src="js/adaline/main.js"></script>
+        <script>
+            document.getElementById('form').addEventListener('submit', function(event) {
+                event.preventDefault(); // Evita que o formulário seja enviado por padrão
+                
+                let epochs = parseFloat(document.getElementById('epochs').value);
+                let alpha = parseFloat(document.getElementById('alpha').value);
+                let winRate = parseFloat(document.getElementById('winRate').value);
+                
+                logContainer.innerHTML = '';
+                if(canvasError.chart){
+                    canvasError.chart.destroy();
+                    console.log("Destruiu")
+                }
+                if(canvasRegression.chart){
+                    canvasRegression.chart.destroy();
+                    console.log("Destruiu")
+                }
+                if(isNaN(epochs)){
+                    epochs = 1000;
+                }
+                if(isNaN(alpha)){
+                    alpha = 0.01;
+                }
+                if(isNaN(winRate)){
+                    winRate = 90;
+                }
+
+                adaline(epochs, alpha, winRate);
+                renderLatex();
+            });            
+        </script>
         
         <!-- js navbar -->
         <script src="js/navbar.js"></script>
+
 
     </body>
 </html>
