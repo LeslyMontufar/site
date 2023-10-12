@@ -23,12 +23,12 @@ class DataSet {
 }
 
 class Adaline {
-    constructor({data, epochs=1000, alpha = 0.01}) {
+    constructor({data, epochs=1000, alpha = 0.001}) {
         this.alpha = alpha;
         this.data = data;
         this.epochs = epochs;
         
-        this.tolerance = 1e-4;
+        this.tolerance = 1e-10;
         this.dw = 0;
         this.Biggerdw = 0;
         this.error = 0;
@@ -140,21 +140,21 @@ function log(message) {
     logContainer.appendChild(logMessage);
 }
 
-function drawChart(dots, dots2) {
-    let ctx = document.getElementById('errorChart').getContext('2d');
+function drawChart(element,label1, dots1, label2, dots2) {
+    let ctx = document.getElementById(element).getContext('2d');
 
     // Defina os dados do gráfico de dispersão (exemplo)
     let datas = {
       datasets: [
         {
-          label: 'Erro quadrático médio',
-          data: dots,
+          label: label1,
+          data: dots1,
           backgroundColor: 'rgba(75, 192, 192, 0.5)',
           pointRadius: 6,
           yAxisID: 'esquerda'
         },
         {
-          label: 'Taxa de acerto',
+          label: label2,
           data: dots2,
           backgroundColor: 'rgba(255, 99, 132, 0.5)', // Cor do grupo 2
           pointRadius: 6,
@@ -184,29 +184,51 @@ function drawChart(dots, dots2) {
     });
 }
 
-// const data = new DataSet({data: [-1, -1,
-//                                 -1, 1,
-//                                 1, -1,
-//                                 1, 1],
-//                         nro_in: 2,
-//                         target: [-1, -1,
-//                                 1, -1,
-//                                 1, -1,
-//                                 1, 1],
-//                         nro_out: 2});
+function drawLinearRegression(element,label1, dots1, label2, dots2) {
+    // Selecione o elemento canvas
+    var ctx = document.getElementById(element).getContext('2d');
 
-const data = new DataSet({data: [-1, -1,
-    -1, 1,
-    1, -1,
-    1, 1],
-nro_in: 2,
-target: [-1,
-    1,
-    1,
-    1],
-nro_out: 1});
+    // Dados do gráfico de dispersão (amostras)
+    var data = {
+        datasets: [
+          {
+            label: label1,
+            data: dots1,
+            borderColor: 'rgba(75, 192, 192, 0.5)',
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            pointRadius: 6,
+            type: 'scatter', // Tipo de gráfico de dispersão
+          },
+          {
+            label: label2,
+            data: dots2,
+            borderColor: 'red', // Cor da linha
+            borderWidth: 2, // Largura da linha
+            fill: false, // Não preencha a área sob a linha
+            type: 'line', // Tipo de gráfico de linha
+          }
+        ]
+      };
+      
+      // Configurações do gráfico
+      var options = {
+        responsive: true,
+        // maintainAspectRatio: false,
+      };
+      
+      // Crie o gráfico combinado de dispersão e linha
+      var myCombinedChart = new Chart(ctx, {
+        type: 'scatter',
+        data: data,
+        options: options
+      });
 
-let adaline = new Adaline({data, epochs:100});
+}
+
+const data = new DataSet({data: x, nro_in: nro_x,
+                          target: y, nro_out: nro_y});
+
+let adaline = new Adaline({data, epochs:1000, alpha: 0.01});
 let epoch = 1;
 let continueCondition = true;
 let dots = [];
@@ -224,86 +246,107 @@ while ((epoch <= adaline.epochs) && continueCondition) {
     epoch++;
 }
 
-log(`epochs duration: ${epoch}`)
+log(`epochs duration: ${epoch-1}`)
 log(`final error: ${adaline.globalError}`)
+log(`final win rate: ${adaline.winRate}`)
 
-drawChart(dots, dots2);
+drawChart('errorChart','Erro quadrático médio', dots, 'Taxa de acerto', dots2);
 
-// message = `\\[
-//     \\begin{bmatrix}
-//       x_{11} & x_{12} & \\ldots & x_{1n} 
-//     \\end{bmatrix}
-//     \\cdot
-//     \\begin{bmatrix}
-//       w_{11} & w_{12} & \\ldots & w_{1p} \\\\
-//       w_{21} & w_{22} & \\ldots & w_{2p} \\\\
-//       \\vdots & \\vdots & \\ddots & \\vdots \\\\
-//       w_{n1} & w_{n2} & \\ldots & w_{np}
-//     \\end{bmatrix}
-//     +
-//     \\begin{bmatrix}
-//       b_{11} \\\\
-//       b_{21} \\\\
-//       \\ldots \\\\
-//       b_{n1} 
-//     \\end{bmatrix}
-//     =
-//     \\begin{bmatrix}
-//       y_{11} & y_{12} & \\ldots & y_{1p} 
-//     \\end{bmatrix}
-//     \\]`
+let dots3 = [], dots4 = [], result, maior = 0, menor = 100;
+while(adaline.data.case<adaline.data.nro_cases) {
+    dots3.push({x:data.x, y:data.t});
+    result = parseFloat(adaline.w*data.x+adaline.b);
+    erro = (data.t-result);
+    if(maior < erro){
+        maior = erro;
+    }
+    if(menor > erro){
+        menor = erro;
+    }
+    dots4.push({x:data.x, y:result});
+    adaline.data.case ++;
+}
+adaline.data.case = 0;
 
-// eq = `<br>\\[
-//     \\begin{bmatrix}`
+log(`min diff: ${menor}`)
+log(`max diff: ${maior}`)
+drawLinearRegression('linearRegression','Amostras', dots3, 'Regressao Linear', dots4);
 
-// for (let i=1;i<data.nro_in;i++){
-//     eq += `x_{1${i}} & `
-// }
+message = `\\[
+    \\begin{bmatrix}
+      x_{11} & x_{12} & \\ldots & x_{1n} 
+    \\end{bmatrix}
+    \\cdot
+    \\begin{bmatrix}
+      w_{11} & w_{12} & \\ldots & w_{1p} \\\\
+      w_{21} & w_{22} & \\ldots & w_{2p} \\\\
+      \\vdots & \\vdots & \\ddots & \\vdots \\\\
+      w_{n1} & w_{n2} & \\ldots & w_{np}
+    \\end{bmatrix}
+    +
+    \\begin{bmatrix}
+      b_{11} \\\\
+      b_{21} \\\\
+      \\ldots \\\\
+      b_{n1} 
+    \\end{bmatrix}
+    =
+    \\begin{bmatrix}
+      y_{11} & y_{12} & \\ldots & y_{1p} 
+    \\end{bmatrix}
+    \\]`
 
-// eq += `x_{1${data.nro_in}}
-//     \\end{bmatrix}
-//     \\cdot`
+eq = `<br>\\[
+    \\begin{bmatrix}`
 
-// eq += `\\begin{bmatrix}`
-// for (let i=0; i<data.nro_in; i++){
-//     for (let j=0; j<data.nro_out-1; j++){
-//         eq += `${adaline.w[i*data.nro_out+j]} & `
-//     }
-//     eq += `${adaline.w[i*data.nro_out+data.nro_out-1]} \\\\`
-// }
+for (let i=1;i<data.nro_in;i++){
+    eq += `x_{1${i}} & `
+}
 
-// eq += `\\end{bmatrix}
-// +`
-// eq += `\\begin{bmatrix}`
+eq += `x_{1${data.nro_in}}
+    \\end{bmatrix}
+    \\cdot`
 
-// for (let i=0;i<data.nro_out-1;i++){
-//     eq += `${adaline.b[i]} \\\\`
-// }
+eq += `\\begin{bmatrix}`
+for (let i=0; i<data.nro_in; i++){
+    for (let j=0; j<data.nro_out-1; j++){
+        eq += `${adaline.w[i*data.nro_out+j]} & `
+    }
+    eq += `${adaline.w[i*data.nro_out+data.nro_out-1]} \\\\`
+}
 
-// eq += `${adaline.b[data.nro_out-1]}
-//     \\end{bmatrix}
-//     =`
+eq += `\\end{bmatrix}
++`
+eq += `\\begin{bmatrix}`
 
-// eq += `\\begin{bmatrix}`
+for (let i=0;i<data.nro_out-1;i++){
+    eq += `${adaline.b[i]} \\\\`
+}
 
-// for (let i=1;i<data.nro_out;i++){
-//     eq += `y_{1${i}} & `
-// }
+eq += `${adaline.b[data.nro_out-1]}
+    \\end{bmatrix}
+    =`
 
-// eq += `y_{1${data.nro_in}}
-//     \\end{bmatrix}`
+eq += `\\begin{bmatrix}`
 
-// eq += `\\approx
-// \\begin{bmatrix}`
+for (let i=1;i<data.nro_out;i++){
+    eq += `y_{1${i}} & `
+}
 
-// for (let i=1;i<data.nro_out;i++){
-//     eq += `t_{1${i}} & `
-// }
+eq += `y_{1${data.nro_in}}
+    \\end{bmatrix}`
 
-// eq += `t_{1${data.nro_in}}
-//     \\end{bmatrix}`
+eq += `\\approx
+\\begin{bmatrix}`
 
-// eq += `\\]`
+for (let i=1;i<data.nro_out;i++){
+    eq += `t_{1${i}} & `
+}
 
-// log(message);
-// log(eq);
+eq += `t_{1${data.nro_in}}
+    \\end{bmatrix}`
+
+eq += `\\]`
+
+log(message);
+log(eq);
