@@ -55,7 +55,7 @@
             <input type="text" id="epochs" name="epochs" placeholder="1000">
 
             <label for="alpha">alpha:</label>
-            <input type="text" id="alpha" name="alpha" placeholder="0.01">
+            <input type="text" id="alpha" name="alpha" placeholder="0.001">
             
             <label for="winRate">winRate:</label>
             <input type="text" id="winRate" name="winRate" placeholder="90">
@@ -98,13 +98,13 @@
                     epochs = 1000;
                 }
                 if(isNaN(alpha)){
-                    alpha = 0.01;
+                    alpha = 0.001;
                 }
                 if(isNaN(winRate)){
                     winRate = 90;
                 }
 
-                adaline(epochs, alpha, winRate);
+                adalineTrain(epochs, alpha, winRate);
                 renderLatex();
             });            
         </script>

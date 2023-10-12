@@ -29,9 +29,14 @@ class Adaline {
         this.epochs = epochs;
         this.userWinRate = userWinRate;
         
-        this.tolerance = 1e-1;
+        this.tolerance = 1e-6;
         this.dw = 0;
-        this.Biggerdw = 0;
+        this.db = 0;
+
+        this.biggerdw = 0;
+        this.oldW = 0;
+        this.oldB = 0;
+        
         this.error = 0;
         this.globalError = 0;
 
@@ -82,18 +87,11 @@ class Adaline {
             errYTarget = this.data.t[j]-this.u[j];
             for(let i=0; i<this.data.nro_in; i++) {
                 this.dw = this.alpha*this.data.x[i]*errYTarget; // +a ou - 0, no caso de entrada e saida inteira
+                this.db = this.alpha*errYTarget;
                 this.w[i*this.data.nro_out+j] += this.dw;
-                this.b[j] += this.alpha*errYTarget;                
+                this.b[j] += this.db;                
             }
             this.error += errYTarget*errYTarget
-
-            console.log(this.dw)
-            this.dw = (this.dw > 0) ? this.dw : -this.dw;
-            if(this.dw>this.Biggerdw) {
-                this.Biggerdw = this.dw;
-                // console.log(this.Biggerdw)
-            } 
-
         }
         this.error /= (2*this.data.nro_out)
     }
@@ -118,9 +116,27 @@ class Adaline {
         }
         this.data.case = 0;
         this.winRate = this.winRate / (this.data.nro_cases*this.data.nro_out) *100;
+
+        for(let i in this.w){ // w é matrix represeentada como vetor
+            this.dw = this.oldW[i] - this.w[i];
+            this.dw = (this.dw > 0) ? this.dw : -this.dw;
+            if(this.biggerdw<this.dw){
+                this.biggerdw = this.dw;
+            }
+        }
+        for(let i in this.b){ // w é matrix represeentada como vetor
+            this.db = this.oldB[i] - this.b[i];
+            this.db = (this.db > 0) ? this.db : -this.db;
+            if(this.biggerdw<this.db){
+                this.biggerdw = this.db;
+            }
+        }
     }
 
     train(){
+        this.biggerdw = 0;
+        this.oldW = this.w.slice(0,this.data.nro_in*this.data.nro_out);
+        this.oldB = this.b.slice(0,this.data.nro_out);
         this.winRate = 0;
         this.globalY = [];
         this.globalError = 0;
@@ -133,16 +149,14 @@ class Adaline {
         this.data.case = 0;
         this.validate();
         this.globalError /= this.data.nro_cases;
-
-        // console.log(this.Biggerdw)
         
-        return (this.winRate < this.userWinRate) && (this.Biggerdw > this.tolerance);
+        return (this.winRate < this.userWinRate) && (this.biggerdw >= this.tolerance);
     }
 }
 
 // inicio
 
-function adaline(epochs=1000, alpha=0.01, userWinRate=90){
+function adalineTrain(epochs=1000, alpha=0.01, userWinRate=90){
 
 const data = new DataSet({data: x, nro_in: nro_x,
                           target: y, nro_out: nro_y});
@@ -152,6 +166,8 @@ let epoch = 1;
 let continueCondition = true;
 let dots = [];
 let dots2 = [];
+
+// console.log(adaline)
 
 while ((epoch <= adaline.epochs) && continueCondition) {
     continueCondition = adaline.train();
@@ -163,6 +179,7 @@ while ((epoch <= adaline.epochs) && continueCondition) {
     dots.push({x:epoch, y:adaline.globalError})
     dots2.push({x:epoch, y:adaline.winRate})
     epoch++;
+    console.log(adaline)
 }
 
 log(`epochs duration: ${epoch-1}`)
@@ -191,35 +208,21 @@ function mean(v){
     return sum(v)/v.length;
 }
 
-function sum(v,v2=false){
-    let soma = 0;
-    if(!v2){
-        for(let i in v){
-            soma += v[i];
-        }
-    }
-    else if(v2){
-        if(v2===true){
-            for(let i in v){
-                soma += v[i]*v[i];
-            }
-        } else {
-            for(let i in v){
-                soma += v[i]*v2[i];
-            }
-        }
-    }
-    return soma
-}
-
-
 function calculateAR(x,y){
     let n = x.length;
-    let sum_x = sum(x);
-    let sum_y = sum(y);
-    let base = (n*sum(x, y) - sum_x*sum_y);
-    let baseX = (n*sum(x,true)-sum_x*sum_x);
-    let baseY = (n*sum(y,true)-sum_x*sum_x);
+    let sum_x = 0, sum_y = 0, sum_xy = 0, sum_x2 = 0, sum_y2 = 0;
+
+    for(let i in x){
+        sum_x += x[i];
+        sum_y += y[i];
+        sum_xy += x[i]*y[i];
+        sum_x2 += x[i]*x[i];
+        sum_y2 += y[i]*y[i];
+    }
+
+    let base = n*sum_xy - sum_x*sum_y;
+    let baseX = (n*sum_x2-sum_x*sum_x);
+    let baseY = (n*sum_y2-sum_y*sum_y);
     let a = base/baseX;
     let r = base/Math.sqrt(baseX*baseY);
     return [a,r];
