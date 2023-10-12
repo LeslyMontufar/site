@@ -23,10 +23,11 @@ class DataSet {
 }
 
 class Adaline {
-    constructor({data, epochs=1000, alpha = 0.001}) {
+    constructor({data, epochs=1000, alpha = 0.001, userWinRate = 100}) {
         this.alpha = alpha;
         this.data = data;
         this.epochs = epochs;
+        this.userWinRate = userWinRate;
         
         this.tolerance = 1e-10;
         this.dw = 0;
@@ -71,7 +72,7 @@ class Adaline {
     }
 
     activationG(value) {
-        return ((value>=0)*2-1)
+        return value //((value>=0)*2-1)
     }
 
     updateWeights() {
@@ -95,6 +96,7 @@ class Adaline {
     }
 
     validate() {
+        let error;
         while(this.data.case<this.data.nro_cases){
             for(let j=0; j<this.data.nro_out; j++) { // colunm
                 let c = this.b[j];
@@ -103,7 +105,8 @@ class Adaline {
                 }
                 this.u[j] = c; 
                 this.y[j] = this.activationG(c);
-                if(this.data.t[j]==this.y[j]){
+                error = (this.data.t[j]-this.y[j])
+                if(error<=(100-this.userWinRate)*this.data.t[j]){
                     this.winRate++;
                 }
             }
@@ -111,10 +114,10 @@ class Adaline {
             this.data.case++;
         }
         this.data.case = 0;
-        this.winRate = this.winRate /(this.data.nro_cases*this.data.nro_out)*100;
+        this.winRate = this.winRate / (this.data.nro_cases*this.data.nro_out) *100;
     }
 
-    train(userWinRate = 100){
+    train(){
         this.winRate = 0;
         this.globalY = [];
         this.globalError = 0;
@@ -128,7 +131,7 @@ class Adaline {
         this.validate();
         this.globalError /= this.data.nro_cases;
         
-        return (this.winRate < userWinRate) && (this.Biggerdw > this.tolerance);
+        return (this.winRate < this.userWinRate) && (this.Biggerdw > this.tolerance);
     }
 }
 
@@ -212,7 +215,7 @@ function drawLinearRegression(element,label1, dots1, label2, dots2) {
       
       // Configurações do gráfico
       var options = {
-        responsive: true,
+        // responsive: true,
         // maintainAspectRatio: false,
       };
       
@@ -228,7 +231,7 @@ function drawLinearRegression(element,label1, dots1, label2, dots2) {
 const data = new DataSet({data: x, nro_in: nro_x,
                           target: y, nro_out: nro_y});
 
-let adaline = new Adaline({data, epochs:1000, alpha: 0.01});
+let adaline = new Adaline({data, epochs:1000, alpha: 0.01, userWinRate:90});
 let epoch = 1;
 let continueCondition = true;
 let dots = [];
@@ -253,23 +256,31 @@ log(`final win rate: ${adaline.winRate}`)
 drawChart('errorChart','Erro quadrático médio', dots, 'Taxa de acerto', dots2);
 
 let dots3 = [], dots4 = [], result, maior = 0, menor = 100;
-while(adaline.data.case<adaline.data.nro_cases) {
-    dots3.push({x:data.x, y:data.t});
-    result = parseFloat(adaline.w*data.x+adaline.b);
-    erro = (data.t-result);
+// while(adaline.data.case<adaline.data.nro_cases) {
+//     dots3.push({x:data.x, y:data.t});
+//     result = parseFloat(adaline.w[0]*data.x[0]+adaline.b[0]);
+//     erro = (data.t-result);
+
+//     dots4.push({x:data.x, y:result});
+//     adaline.data.case ++;
+// }
+// adaline.data.case = 0;
+
+for(let i in data.target) {
+    dots3.push({x:data.data[i],y:data.target[i]});
+    dots4.push({x:data.data[i],y:adaline.globalY[i]});
+    erro = data.target[i]-adaline.globalY[i];
+    erro = erro < 0 ? -erro : erro;
     if(maior < erro){
         maior = erro;
     }
     if(menor > erro){
         menor = erro;
     }
-    dots4.push({x:data.x, y:result});
-    adaline.data.case ++;
 }
-adaline.data.case = 0;
-
 log(`min diff: ${menor}`)
 log(`max diff: ${maior}`)
+
 drawLinearRegression('linearRegression','Amostras', dots3, 'Regressao Linear', dots4);
 
 message = `\\[
