@@ -78,13 +78,6 @@
         
         <!-- js adaline -->
         <script src="js/adaline/ids.js"></script>
-        <!-- <script>
-            function oi(n1,n2){
-                log(`$x^2 + ${n1}^{${n2}}$`)
-            }
-            oi(33, 44)
-        </script> -->
-
         <script src="js/adaline/main.js"></script>
         <script>
             document.getElementById('form').addEventListener('submit', function(event) {
@@ -97,11 +90,9 @@
                 logContainer.innerHTML = '';
                 if(canvasError.chart){
                     canvasError.chart.destroy();
-                    console.log("Destruiu")
                 }
                 if(canvasRegression.chart){
                     canvasRegression.chart.destroy();
-                    console.log("Destruiu")
                 }
                 if(isNaN(epochs)){
                     epochs = 1000;
@@ -121,6 +112,9 @@
         <!-- js navbar -->
         <script src="js/navbar.js"></script>
 
+        <!-- teste no console para ver que é linear
+        canvasRegression.chart.config.data.datasets[1].data[25].y = 10
+        canvasRegression.chart.update() -->
 
     </body>
 </html>

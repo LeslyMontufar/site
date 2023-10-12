@@ -29,7 +29,7 @@ class Adaline {
         this.epochs = epochs;
         this.userWinRate = userWinRate;
         
-        this.tolerance = 1e-10;
+        this.tolerance = 1e-1;
         this.dw = 0;
         this.Biggerdw = 0;
         this.error = 0;
@@ -87,10 +87,13 @@ class Adaline {
             }
             this.error += errYTarget*errYTarget
 
+            console.log(this.dw)
             this.dw = (this.dw > 0) ? this.dw : -this.dw;
             if(this.dw>this.Biggerdw) {
                 this.Biggerdw = this.dw;
-            }
+                // console.log(this.Biggerdw)
+            } 
+
         }
         this.error /= (2*this.data.nro_out)
     }
@@ -130,6 +133,8 @@ class Adaline {
         this.data.case = 0;
         this.validate();
         this.globalError /= this.data.nro_cases;
+
+        // console.log(this.Biggerdw)
         
         return (this.winRate < this.userWinRate) && (this.Biggerdw > this.tolerance);
     }
@@ -181,6 +186,53 @@ for(let i in data.target) {
 }
 log(`min diff: ${menor}`)
 log(`max diff: ${maior}`)
+
+function mean(v){
+    return sum(v)/v.length;
+}
+
+function sum(v,v2=false){
+    let soma = 0;
+    if(!v2){
+        for(let i in v){
+            soma += v[i];
+        }
+    }
+    else if(v2){
+        if(v2===true){
+            for(let i in v){
+                soma += v[i]*v[i];
+            }
+        } else {
+            for(let i in v){
+                soma += v[i]*v2[i];
+            }
+        }
+    }
+    return soma
+}
+
+
+function calculateAR(x,y){
+    let n = x.length;
+    let sum_x = sum(x);
+    let sum_y = sum(y);
+    let base = (n*sum(x, y) - sum_x*sum_y);
+    let baseX = (n*sum(x,true)-sum_x*sum_x);
+    let baseY = (n*sum(y,true)-sum_x*sum_x);
+    let a = base/baseX;
+    let r = base/Math.sqrt(baseX*baseY);
+    return [a,r];
+}
+
+result = calculateAR(data.data, data.target);
+let a = result[0],r = result[1];
+let b = mean(data.target) - a*mean(data.data);
+let eqAB = `\\[x\\cdot${a}+${b}=y\\]`;
+
+log(eqAB)
+log(`Coeficiente de correlação de Pearson: ${r}<br>
+Coeficiente de determinação: ${r*r}`)
 
 drawLinearRegression('Amostras', dots3, 'Regressao Linear', dots4);
 
