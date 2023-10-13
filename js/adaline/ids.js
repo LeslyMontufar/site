@@ -16,7 +16,7 @@ function drawChart(label1, dots1, label2, dots2, maxX) {
         {
           label: label1,
           data: dots1,
-          borderColor: 'rgba(75, 192, 192, 0.5)',
+          borderColor: 'rgba(75, 192, 192, 1)',
           fill: false,
           pointRadius: 2,
           yAxisID: 'esquerda'
@@ -24,7 +24,7 @@ function drawChart(label1, dots1, label2, dots2, maxX) {
         {
           label: label2,
           data: dots2,
-          borderColor: 'rgba(255, 99, 132, 0.5)', 
+          borderColor: 'rgba(255, 99, 132, 1)', 
           fill: false,
           pointRadius: 2,
           yAxisID: 'direita'

@@ -51,26 +51,35 @@
         </div>
 
         <!-- code -->
-        <form id="form">
-            <label for="epochs">epochs:</label>
-            <input type="text" id="epochs" name="epochs" placeholder="1000">
-
-            <label for="alpha">alpha:</label>
-            <input type="text" id="alpha" name="alpha" placeholder="0.001">
-            
-            <label for="winRate">winRate:</label>
-            <input type="text" id="winRate" name="winRate" placeholder="90">
-
-            <label for="tolerance">tolerance:</label>
-            <input type="text" id="tolerance" name="tolerance" placeholder="1e-6">
-
-            <button type="submit">Calcular</button>
-        </form>
-
         <div class="container">
-            <div class="log">
-                <div id="logContainer"></div>
-            </div>
+            <form id="form">
+                <label for="epochs">epochs:</label>
+                <input type="text" id="epochs" name="epochs" placeholder="1000">
+
+                <label for="alpha">alpha:</label>
+                <input type="text" id="alpha" name="alpha" placeholder="0.001">
+                
+                <!-- <label for="winRate">winRate:</label>
+                <input type="text" id="winRate" name="winRate" placeholder="90"> -->
+
+                <label for="tolerance">tolerance:</label>
+                <input type="text" id="tolerance" name="tolerance" placeholder="1e-6">
+
+                <button type="submit">Calcular</button>
+            </form>
+        
+            <div id="logContainer"></div>
+            
+            <p>Para o x:<br></p>
+            <button id="logarithmic">Logarithmic scale</button>
+            <button id="linear">Linear scale</button>
+            <br><br>
+
+            <p>Para o erro:<br></p>
+            <button id="logarithmicY">Logarithmic scale</button>
+            <button id="linearY">Linear scale</button>
+
+
             <div class="chart">
                 <canvas id="errorChart"></canvas>
             </div>
@@ -84,12 +93,38 @@
         <script src="js/adaline/ids.js"></script>
         
         <script>
+            let logarithmic = document.getElementById('logarithmic');
+            logarithmic.addEventListener('click', function() {
+                canvasError.chart.config.options.scales.x.type = 'logarithmic';
+                canvasError.chart.update();
+            });
+
+            let linear = document.getElementById('linear');
+            linear.addEventListener('click', function() {
+                canvasError.chart.config.options.scales.x.type = 'linear';
+                canvasError.chart.update();
+            });
+
+            let logarithmicY = document.getElementById('logarithmicY');
+            logarithmicY.addEventListener('click', function() {
+                canvasError.chart.config.options.scales.esquerda.type = 'logarithmic';
+                canvasError.chart.update();
+            });
+
+            let linearY = document.getElementById('linearY');
+            linearY.addEventListener('click', function() {
+                canvasError.chart.config.options.scales.esquerda.type = 'linear';
+                canvasError.chart.update();
+            });
+
+
+
             document.getElementById('form').addEventListener('submit', function(event) {
                 event.preventDefault(); // Evita que o formulário seja enviado por padrão
                 
                 let epochs = parseFloat(document.getElementById('epochs').value);
                 let alpha = parseFloat(document.getElementById('alpha').value);
-                let winRate = parseFloat(document.getElementById('winRate').value);
+                // let winRate = parseFloat(document.getElementById('winRate').value);
                 let tolerance = parseFloat(document.getElementById('tolerance').value);
                 
                 logContainer.innerHTML = '';
@@ -105,14 +140,14 @@
                 if(isNaN(alpha)){
                     alpha = 0.001;
                 }
-                if(isNaN(winRate)){
-                    winRate = 90;
-                }
+                // if(isNaN(winRate)){
+                //     winRate = 90;
+                // }
                 if(isNaN(tolerance)){
                     tolerance = 1e-6;
                 }
 
-                adalineTrain(epochs, alpha, winRate, tolerance);
+                adalineTrain(epochs, alpha, 100, tolerance);
                 renderLatex();
             });            
         </script>
