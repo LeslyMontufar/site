@@ -167,25 +167,12 @@ let continueCondition = true;
 let dots = [];
 let dots2 = [];
 
-// console.log(adaline)
-
 while ((epoch <= adaline.epochs) && continueCondition) {
     continueCondition = adaline.train();
-    // log(`Epoch: ${epoch} global error: ${adaline.globalError}<br>`)  
-    // log(`w: ${adaline.w}<br>b: ${adaline.b}<br>`)
-    // log(`y: ${adaline.globalY}<br>target: ${adaline.data.target}<br>`)
-    // log(`winRate: ${adaline.winRate}%<br><br>`);
-    // log(`continue: ${continueCondition}<br><br>`);
     dots.push({x:epoch, y:adaline.globalError})
     dots2.push({x:epoch, y:adaline.winRate})
     epoch++;
 }
-
-log(`epochs duration: ${epoch-1}`)
-log(`final error: ${adaline.globalError}`)
-log(`final win rate: ${adaline.winRate}`)
-
-drawChart('Erro quadrático médio', dots, 'Taxa de acerto', dots2, epoch-1);
 
 let dots3 = [], dots4 = [], result, maior = 0, menor = 100;
 for(let i in data.target) {
@@ -200,8 +187,6 @@ for(let i in data.target) {
         menor = erro;
     }
 }
-log(`min diff: ${menor}`)
-log(`max diff: ${maior}`)
 
 function mean(v){
     let soma = 0;
@@ -236,10 +221,19 @@ let a = result[0],r = result[1];
 let b = mean(data.target) - a*mean(data.data);
 let eqAB = `\\[x\\cdot${a}+${b}=y\\]`;
 
-log(eqAB)
-log(`Coeficiente de correlação de Pearson: ${r}<br>
+log(`Regressão linear obtida usando as equações de cálculo de a e b:<br><br>
+Coeficiente de correlação de Pearson: ${r}<br>
 Coeficiente de determinação: ${r*r}`)
+log(eqAB+'<br><br>')
 
+log(`Regressão linear obtida usando adaline:<br><br>`)
+log(`Duração em épocas: ${epoch-1}`)
+log(`Erro quadrático médio final: ${adaline.globalError}`)
+log(`Taxa de acerto final: ${adaline.winRate}%`)
+log(`Mínimo desvio: ${menor}`)
+log(`Máximo desvio: ${maior}`)
+
+drawChart('Erro quadrático médio', dots, 'Taxa de acerto', dots2, epoch-1);
 drawLinearRegression('Amostras', dots3, 'Regressao Linear', dots4);
 
 message = `\\[
@@ -304,21 +298,24 @@ for (let i=1;i<data.nro_out;i++){
 }
 
 eq += `y_{1${data.nro_in}}
-    \\end{bmatrix}`
-
-eq += `\\approx
+    \\end{bmatrix} \\approx
 \\begin{bmatrix}`
 
 for (let i=1;i<data.nro_out;i++){
     eq += `t_{1${i}} & `
 }
 
-eq += `t_{1${data.nro_in}}
-    \\end{bmatrix}`
-
-eq += `\\]`
+eq += `t_{1${data.nro_in}} \\end{bmatrix} \\]`
 
 // log(message);
 log(eq);
+
+function calculateError(target,estimated){
+    return (target-estimated)/target*100;
+}
+log(`Comparando com a referência:<br><br>
+Erro absoluto do coeficiente angular: ${calculateError(a,adaline.w[0])}%<br>
+Erro absoluto do coeficiente linear: ${calculateError(b,adaline.b[0])}%<br><br>`)
+
 
 }

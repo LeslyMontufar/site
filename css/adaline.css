@@ -2,6 +2,10 @@
     padding: 6em 30px;
 }
 
+.item {
+    margin-right: 2em;
+}
+
 #logContainer {
     /* border: 1px solid #ccc; */
     padding: 10px;
