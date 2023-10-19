@@ -1,15 +1,11 @@
-const canvasError = document.getElementById('errorChart');
-const canvasRegression = document.getElementById('regressionChart');
-const logContainer = document.getElementById('logContainer');
-
-function log(message) {    
+function log(container, message) {    
     const logMessage = document.createElement('p');
     logMessage.innerHTML = message;
-    logContainer.appendChild(logMessage);
+    container.appendChild(logMessage);
 }
 
-function drawChart(label1, dots1, label2, dots2, maxX) {
-    let ctx = canvasError.getContext('2d');
+function drawChart(canvas, label1, dots1, maxX) {
+    let ctx = canvas.getContext('2d');
     // Defina os dados do gráfico de dispersão
     let datas = {
       datasets: [
@@ -19,16 +15,7 @@ function drawChart(label1, dots1, label2, dots2, maxX) {
           borderColor: 'rgba(75, 192, 192, 1)',
           fill: false,
           pointRadius: 2,
-          yAxisID: 'esquerda'
         },
-        {
-          label: label2,
-          data: dots2,
-          borderColor: 'rgba(255, 99, 132, 1)', 
-          fill: false,
-          pointRadius: 2,
-          yAxisID: 'direita'
-        }
       ]
     };
   
@@ -44,26 +31,21 @@ function drawChart(label1, dots1, label2, dots2, maxX) {
                 min: 1,
                 max: maxX,
             },
-            esquerda: {
+            y: {
                 type: 'linear',
                 position: 'left',
-                beginAtZero: true,
-            },
-            direita: {
-                type: 'linear',
-                position: 'right',
                 beginAtZero: true,
             }
         }
       }
     });
 
-    canvasError.chart = chart;
+    canvas.chart = chart;
 }
 
 
-function drawLinearRegression(label1, dots1, label2, dots2) {
-    let ctx = canvasRegression.getContext('2d');
+function drawApprox(canvas, label1, dots1, label2, dots2) {
+    let ctx = canvas.getContext('2d');
 
     // Dados do gráfico de dispersão (amostras)
     let data = {
@@ -81,7 +63,8 @@ function drawLinearRegression(label1, dots1, label2, dots2) {
             data: dots2,
             borderColor: 'red', // Cor da linha
             borderWidth: 2, // Largura da linha
-            fill: false, // Não preencha a área sob a linha
+            // fill: false, // Não preencha a área sob a linha
+            pointRadius: 0,
             type: 'line', // Tipo de gráfico de linha
           }
         ]
@@ -99,7 +82,7 @@ function drawLinearRegression(label1, dots1, label2, dots2) {
         options: options
       });
 
-      canvasRegression.chart = chart;
+      canvas.chart = chart;
 }
 
 function renderLatex() {

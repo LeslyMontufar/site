@@ -3,12 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Site js</title>
-
-        <!-- navbar -->
-        <link rel="stylesheet" type="text/css" href="css/navbar.css">
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css">
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <title>Multilayer Neural Network</title>
 
         <!-- latex -->
         <script type="text/x-mathjax-config"> MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}}); </script>
@@ -17,12 +12,19 @@
         <!-- chart -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+        <!-- navbar -->
+        <link rel="stylesheet" type="text/css" href="css/navbar.css">
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css">
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+
         <!-- code -->
         <link rel="stylesheet" type="text/css" href="css/styleCharts.css">
-        <script src="js/adaline/baseDados.js"></script>
-        <script src="js/adaline/main.js"></script>
-
+        <script src="js/MLP/inputData.js"></script>
+        <script src="js/MLP/main.js"></script>
+        <script src="js/MLP/functions.js"></script>
     </head>
+
     <body>
         <!-- navbar -->
         <div id="navbar-animmenu">
@@ -32,16 +34,16 @@
                     <div class="right"></div>
                 </div>
                 <li>
-                    <a href="index.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+                    <a href="index.html"><i class="fas fa-tachometer-alt"></i>Dashboard </a>
                 </li>
                 <li>
-                    <a href="chessboard.html"><i class="fas fa-chess-board"></i>Chessboard</a>
+                    <a href="chessboard.html"><i class="fas fa-chess-board"></i>Chessboard </a>
                 </li>
-                <li class="active">
-                    <a href="adaline.html"><i class="fas fa-code-branch"></i>Adaline</a>
+                <li>
+                    <a href="adaline.html"><i class="fas fa-code-branch"></i>Adaline </a>
                 </li> 
-                <li>
-                    <a href="mlp.html"><i class="far fa-clone"></i>Multi Layer Perceptron</a>
+                <li class="active">
+                    <a href="mlp.html"><i class="far fa-clone"></i>Multi Layer Perceptron </a>
                 </li>         
             </ul>
         </div>
@@ -50,28 +52,28 @@
         <div class="container">
             <form id="form">
                 <label for="epochs">epochs:</label>
-                <input type="text" id="epochs" name="epochs" placeholder="1000" class="item">
+                <input type="text" id="epochs" name="epochs" placeholder="100000" class="item">
 
                 <label for="alpha">alpha:</label>
-                <input type="text" id="alpha" name="alpha" placeholder="0.001" class="item">
+                <input type="text" id="alpha" name="alpha" placeholder="0.1" class="item">
 
-                <label for="tolerance">tolerance:</label>
-                <input type="text" id="tolerance" name="tolerance" placeholder="1e-6" class="item">
+                <label for="nro_middle">nro_middle:</label>
+                <input type="text" id="nro_middle" name="nro_middle" placeholder="4" class="item">
 
                 <button type="submit">Calcular</button>
             </form>
         
             <div id="logContainer"></div>
-
+            
             <div class="chartContainer">
                 <div class="chart">
                     <canvas id="errorChart"></canvas>
                 </div>
                 <div class="chart">
-                    <canvas id="regressionChart"></canvas>
+                    <canvas id="funcApprox"></canvas>
                 </div>
             </div>
-
+            
             <div id="scales">
                 <p>Para o x: 
                 <button id="logarithmic">Logarithmic scale</button>
@@ -84,13 +86,17 @@
                 <button id="linearY">Linear scale</button>
                 </p>
             </div>
-            
+                                 
         </div>
         
-        <!-- js adaline -->
-        <script src="js/adaline/ids.js"></script>
-        
+        <!-- js -->    
         <script>
+            // get IDs 
+            const canvasError = document.getElementById('errorChart');
+            const canvasApprox = document.getElementById('funcApprox');
+            const logContainer = document.getElementById('logContainer');
+
+            // calculate
             let logarithmic = document.getElementById('logarithmic');
             logarithmic.addEventListener('click', function() {
                 canvasError.chart.config.options.scales.x.type = 'logarithmic';
@@ -121,31 +127,31 @@
                 
                 let epochs = parseFloat(document.getElementById('epochs').value);
                 let alpha = parseFloat(document.getElementById('alpha').value);
-                let tolerance = parseFloat(document.getElementById('tolerance').value);
+                let nro_middle = parseFloat(document.getElementById('nro_middle').value);
                 
                 logContainer.innerHTML = '';
                 if(canvasError.chart){
                     canvasError.chart.destroy();
                 }
-                if(canvasRegression.chart){
-                    canvasRegression.chart.destroy();
+                if(canvasApprox.chart){
+                    canvasApprox.chart.destroy();
                 }
                 if(isNaN(epochs)){
-                    epochs = 1000;
+                    epochs = 100000;
                 }
                 if(isNaN(alpha)){
-                    alpha = 0.001;
+                    alpha = 0.1;
+                }
+                if(isNaN(nro_middle)){
+                    nro_middle = 4;
                 }
 
-                if(isNaN(tolerance)){
-                    tolerance = 1e-6;
-                }
-
-                adalineTrain(epochs, alpha, 100, tolerance);
+                multiLayerPerceptron(epochs, alpha, nro_middle);
                 renderLatex();
             });            
         </script>
-        
+        <script src="js/MLP/report.js"></script>
+
         <!-- js navbar -->
         <script src="js/navbar.js"></script>
     </body>
