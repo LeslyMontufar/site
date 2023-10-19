@@ -28,7 +28,7 @@ header{{
 #calcifer-block {{
     height: 40vw;
     width: 40vw;
-    background-color: yellow;
+    /* background-color: yellow; */
     display:flex;
     align-items:center;
     justify-content:center;
@@ -44,7 +44,7 @@ div, div:after, div:before {{
 .wrap {{
   width:100%;
   height:100%;  
-  background: radial-gradient(circle, #691d05, #040202);
+  /* background: radial-gradient(circle, #691d05, #040202); */
 }}
 
 .calcifer {{
@@ -249,7 +249,7 @@ div, div:after, div:before {{
 
 import re
 def processar_linha(linha):
-    size = 25
+    size = 60
     if "//" in linha:
         return ""
     
